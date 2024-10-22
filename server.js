@@ -2,6 +2,9 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const bodyParser = require('body-parser');
 const url = require('url');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,20 +35,22 @@ app.use('/proxy', (req, res, next) => {
   }
 
   const parsedUrl = url.parse(targetUrl);
-  
+
   const proxy = createProxyMiddleware({
     target: `${parsedUrl.protocol}//${parsedUrl.host}`,
     changeOrigin: true,
     pathRewrite: {
       '^/proxy': '',
     },
-    logLevel: 'debug', 
+    logLevel: 'debug',
   });
 
   proxy(req, res, next);
 });
 
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+const port = process.env.PORT;
+const host = process.env.HOST ;
+
+app.listen(port, host, () => {
+  console.log(`Server running on http://${host}:${port}`);
 });
